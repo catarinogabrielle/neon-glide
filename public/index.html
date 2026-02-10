@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Glide</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+</head>
+
+<body>
+
+    <div id="ui-layer">
+        <div class="hud-bar">
+            <div class="hud-item">Vivos: <span id="alive-txt">0</span></div>
+            <div class="hud-item leader-box">Líder: <span id="leader-txt">---</span></div>
+            <div class="hud-item">Score: <span id="score-txt">0</span></div>
+        </div>
+
+        <div id="start-screen" class="screen">
+            <h1>NEON<br>GLIDE</h1>
+            <p>Modo Competitivo</p>
+
+            <div class="custom-area">
+                <label for="player-name">NOME DO PILOTO</label>
+                <input type="text" id="player-name" value="Player 1" maxlength="10" placeholder="Digite seu nome">
+
+                <label>COR DA ESFERA</label>
+                <div class="colors" id="color-options"></div>
+            </div>
+
+            <button class="play-btn" onclick="startGame()">DECOLAR</button>
+        </div>
+
+        <div id="game-over-screen" class="screen hidden">
+            <h1 id="go-title">BATIDO!</h1>
+            <p id="go-msg">Score Final: 0</p>
+            <button class="play-btn" onclick="resetGame()">REINICIAR</button>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
