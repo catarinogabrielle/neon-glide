@@ -1,88 +1,222 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Glide - Real Race</title>
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    li
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap');
 
-        /* --- CSS GERAL --- */
         body {
-            margin: 0; padding: 0; background: #000; overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
             font-family: 'Orbitron', sans-serif;
-            touch-action: none; user-select: none; -webkit-user-select: none;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        canvas { display: block; width: 100%; height: 100vh; }
 
-        /* UI */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+
         #ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; display: flex; flex-direction: column; align-items: center; z-index: 10;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
         }
 
-        /* HUD */
         .hud-bar {
-            margin-top: 10px; display: flex; gap: 10px; width: 95%; max-width: 600px;
-            justify-content: space-between; pointer-events: none;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            width: 95%;
+            max-width: 600px;
+            justify-content: space-between;
+            pointer-events: none;
         }
+
         .hud-item {
-            background: rgba(0, 0, 0, 0.8); border: 1px solid #0ff; color: #fff;
-            padding: 8px 15px; border-radius: 15px; font-size: 14px;
-            box-shadow: 0 0 5px #0ff; display: flex; align-items: center; gap: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0ff;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            box-shadow: 0 0 5px #0ff;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             white-space: nowrap;
         }
-        .leader-box { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 10px #ffd700; }
-        .icon { font-size: 16px; }
 
-        /* TELAS */
+        .leader-box {
+            border-color: #ffd700;
+            color: #ffd700;
+            box-shadow: 0 0 10px #ffd700;
+        }
+
+        .icon {
+            font-size: 16px;
+        }
+
         .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(5px);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: auto; transition: opacity 0.3s; z-index: 20;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            transition: opacity 0.3s;
+            z-index: 20;
         }
-        .hidden { opacity: 0; pointer-events: none; }
 
-        h1 { font-size: 40px; color: #fff; margin-bottom: 5px; text-shadow: 0 0 20px #0ff; text-align: center; }
-        p { color: #aaa; margin-bottom: 20px; font-size: 14px; text-align: center; }
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-        /* CUSTOMIZAÇÃO */
+        h1 {
+            font-size: 40px;
+            color: #fff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px #0ff;
+            text-align: center;
+        }
+
+        p {
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
         .custom-area {
-            background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 15px;
-            border: 1px solid #333; text-align: center; width: 85%; max-width: 320px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
         }
-        label { display: block; color: #0ff; margin-bottom: 5px; font-size: 12px; letter-spacing: 1px; }
-        input[type="text"] {
-            background: #000; border: 2px solid #555; color: #fff; padding: 10px;
-            font-family: 'Orbitron'; font-size: 16px; text-align: center; width: 100%;
-            border-radius: 8px; outline: none; margin-bottom: 15px; box-sizing: border-box;
-        }
-        input[type="text"]:focus { border-color: #0ff; }
 
-        .colors { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
-        .c-btn {
-            width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333;
-            cursor: pointer; transition: transform 0.2s;
+        label {
+            display: block;
+            color: #0ff;
+            margin-bottom: 5px;
+            font-size: 12px;
+            letter-spacing: 1px;
         }
-        .c-btn.selected { border-color: #fff; transform: scale(1.15); box-shadow: 0 0 15px currentColor; }
+
+        input[type="text"] {
+            background: #000;
+            border: 2px solid #555;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Orbitron';
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+            border-radius: 8px;
+            outline: none;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0ff;
+        }
+
+        .colors {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .c-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: transform 0.2s;
+            pointer-events: auto;
+        }
+
+        .c-btn.selected {
+            border-color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px currentColor;
+        }
 
         .play-btn {
-            background: linear-gradient(45deg, #00ccff, #0066ff); border: none; color: white;
-            padding: 15px 0; width: 100%; font-size: 20px; font-family: 'Orbitron'; font-weight: bold;
-            border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px #00ccff; margin-top: 10px;
+            background: linear-gradient(45deg, #00ccff, #0066ff);
+            border: none;
+            color: white;
+            padding: 15px 0;
+            width: 100%;
+            font-size: 20px;
+            font-family: 'Orbitron';
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #00ccff;
+            margin-top: 10px;
         }
-        .play-btn:active { transform: scale(0.95); }
 
-        /* MOBILE */
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
         @media (max-width: 600px) {
-            .hud-bar { width: 98%; gap: 5px; margin-top: 5px; }
-            .hud-item { padding: 5px 8px; font-size: 11px; flex: 1; justify-content: center; }
-            h1 { font-size: 32px; }
-            .c-btn { width: 45px; height: 45px; }
+            .hud-bar {
+                width: 98%;
+                gap: 5px;
+                margin-top: 5px;
+            }
+
+            .hud-item {
+                padding: 5px 8px;
+                font-size: 11px;
+                flex: 1;
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .c-btn {
+                width: 45px;
+                height: 45px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div id="ui-layer">
@@ -98,8 +232,7 @@
 
             <div class="custom-area">
                 <label>PILOTO</label>
-                <input type="text" id="player-name" value="Player 1" maxlength="10">
-                
+                <input type="text" id="player-name" value="Player 1" maxlength="10" placeholder="Digite seu nome">
                 <label>COR</label>
                 <div class="colors" id="color-options"></div>
                 <button class="play-btn" onclick="startGame()">DECOLAR</button>
@@ -129,32 +262,31 @@
             const goScreen = document.getElementById('game-over-screen');
 
             let isRunning = false;
-            let frames = 0; 
+            let frames = 0;
             let score = 0;
 
-            // Dificuldade Hardcore
             const GRAVITY = 0.28;
             const JUMP = 4.2;
             const PIPE_SPEED = 3.5;
-            const PIPE_GAP = 140; 
+            const PIPE_GAP = 140;
             const SPAWN_RATE = 80;
 
             const neonColors = [
-                { hex: '#00ffff' }, { hex: '#ff00ff' }, { hex: '#00ff00' }, 
+                { hex: '#00ffff' }, { hex: '#ff00ff' }, { hex: '#00ff00' },
                 { hex: '#ffff00' }, { hex: '#ff3300' }
             ];
             let selectedColor = neonColors[0].hex;
 
             const colorContainer = document.getElementById('color-options');
-            if(colorContainer) {
-                colorContainer.innerHTML = ''; 
+            if (colorContainer) {
+                colorContainer.innerHTML = '';
                 neonColors.forEach((c, i) => {
                     let btn = document.createElement('div');
                     btn.className = `c-btn ${i === 0 ? 'selected' : ''}`;
                     btn.style.backgroundColor = c.hex;
                     btn.style.borderColor = "#333";
                     btn.style.boxShadow = `0 0 5px ${c.hex}`;
-                    
+
                     btn.onclick = () => {
                         document.querySelectorAll('.c-btn').forEach(b => {
                             b.classList.remove('selected'); b.style.borderColor = "#333"; b.style.transform = "scale(1)";
@@ -169,35 +301,33 @@
             function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
             window.addEventListener('resize', resize); resize();
 
-            // --- JOGADOR ---
             let localPlayer = null;
-            let remotePlayers = {}; 
+            let remotePlayers = {};
             let pipes = [];
 
             class LocalBall {
                 constructor(name, color) {
                     this.name = name; this.color = color;
-                    this.x = 100; // Nós sempre somos desenhados no X 100
+                    this.x = 100;
                     this.y = canvas.height / 2;
-                    this.distance = 0; // NOVO: Progresso real do jogador!
+                    this.distance = 0;
                     this.radius = 15; this.velocity = 0; this.dead = false;
                 }
                 update() {
                     if (this.dead) return;
                     this.velocity += GRAVITY; this.y += this.velocity;
-                    
-                    if (this.y + this.radius > canvas.height || this.y - this.radius < 0) this.die();
-                    
-                    this.distance += PIPE_SPEED; // Anda para frente
 
-                    // Manda Distância e Y pro servidor
+                    if (this.y + this.radius > canvas.height || this.y - this.radius < 0) this.die();
+
+                    this.distance += PIPE_SPEED;
+
                     socket.emit('move', { y: this.y, dist: this.distance });
                 }
                 draw() {
                     if (this.dead) return;
                     drawBall(this.x, this.y, this.radius, this.color, this.name, true);
                 }
-                flap() { if(!this.dead) this.velocity = -JUMP; }
+                flap() { if (!this.dead) this.velocity = -JUMP; }
                 die() {
                     this.dead = true;
                     socket.emit('died');
@@ -209,7 +339,7 @@
             function drawBall(x, y, radius, color, name, isLocal) {
                 ctx.save(); ctx.translate(x, y);
                 ctx.shadowBlur = isLocal ? 20 : 10; ctx.shadowColor = color; ctx.fillStyle = color;
-                if (!isLocal) ctx.globalAlpha = 0.5; // Outros jogadores são translúcidos
+                if (!isLocal) ctx.globalAlpha = 0.5;
                 ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
                 ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
                 ctx.beginPath(); ctx.arc(-5, -5, 5, 0, Math.PI * 2); ctx.fill();
@@ -219,28 +349,25 @@
                 ctx.textAlign = "center"; ctx.fillText(name, x, y - 25);
             }
 
-            // --- MINIMAPA NO TOPO ---
             function drawMinimap() {
                 const mapWidth = canvas.width * 0.8;
                 const mapX = canvas.width * 0.1;
-                const mapY = 80; // Altura do mapinha (logo abaixo do HUD)
+                const mapY = 80;
 
-                // 1. Desenha a linha da pista
                 ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
                 ctx.fillRect(mapX, mapY, mapWidth, 4);
 
-                // 2. Descobre quem é o cara mais longe para ser a linha de chegada dinâmica
                 let maxDist = localPlayer ? localPlayer.distance : 0;
                 for (let id in remotePlayers) {
                     if (!remotePlayers[id].dead && remotePlayers[id].dist > maxDist) {
                         maxDist = remotePlayers[id].dist;
                     }
                 }
-                if (maxDist < 1500) maxDist = 1500; // Escala mínima para o início do jogo
 
-                // 3. Função para desenhar o pontinho no mapa
+                let barScale = Math.max(3000, maxDist * 1.25);
+
                 function drawDotOnMap(dist, color, isLocal) {
-                    let dotX = mapX + (dist / maxDist) * mapWidth;
+                    let dotX = mapX + (dist / barScale) * mapWidth;
                     ctx.beginPath();
                     ctx.arc(dotX, mapY + 2, isLocal ? 6 : 4, 0, Math.PI * 2);
                     ctx.fillStyle = color;
@@ -248,32 +375,30 @@
                     ctx.fill(); ctx.shadowBlur = 0;
                 }
 
-                // 4. Desenha os outros
                 for (let id in remotePlayers) {
                     let rp = remotePlayers[id];
                     if (!rp.dead && rp.dist !== undefined) {
                         drawDotOnMap(rp.dist, rp.color, false);
                     }
                 }
-                // 5. Desenha VOCÊ por cima
+
                 if (localPlayer && !localPlayer.dead) {
                     drawDotOnMap(localPlayer.distance, localPlayer.color, true);
                 }
             }
 
-            // --- SOCKETS (REDE) ---
             socket.on('currentPlayers', (serverPlayers) => {
                 for (let id in serverPlayers) if (id !== socket.id) remotePlayers[id] = serverPlayers[id];
                 updateOnlineCounter();
             });
             socket.on('newPlayer', (p) => { remotePlayers[p.id] = p; updateOnlineCounter(); });
-            socket.on('updatePlayer', (data) => { 
+            socket.on('updatePlayer', (data) => {
                 if (remotePlayers[data.id]) {
                     remotePlayers[data.id].y = data.y;
-                    remotePlayers[data.id].dist = data.dist; // RECEBE A DISTÂNCIA DELES
+                    remotePlayers[data.id].dist = data.dist;
                 }
             });
-            socket.on('playerDied', (id) => { if (remotePlayers[id]) { remotePlayers[id].dead = true; updateOnlineCounter(); }});
+            socket.on('playerDied', (id) => { if (remotePlayers[id]) { remotePlayers[id].dead = true; updateOnlineCounter(); } });
             socket.on('removePlayer', (id) => { delete remotePlayers[id]; updateOnlineCounter(); });
             socket.on('updateLeader', (leaderData) => {
                 leaderEl.innerText = (leaderData.score >= 0) ? `${leaderData.name} (${leaderData.score})` : "---";
@@ -286,7 +411,6 @@
                 aliveEl.innerText = count;
             }
 
-            // --- LÓGICA DE CANOS LOCAIS ---
             function updatePipesLogic() {
                 if (frames % SPAWN_RATE === 0) {
                     let y = Math.random() * (canvas.height - 300) + 100;
@@ -294,8 +418,8 @@
                 }
 
                 for (let i = 0; i < pipes.length; i++) {
-                    let p = pipes[i]; p.x -= PIPE_SPEED; 
-                    
+                    let p = pipes[i]; p.x -= PIPE_SPEED;
+
                     ctx.shadowBlur = 15; ctx.shadowColor = "#00ffff";
                     ctx.fillStyle = "rgba(0, 255, 255, 0.2)"; ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2;
                     ctx.fillRect(p.x, 0, 60, p.y); ctx.strokeRect(p.x, 0, 60, p.y);
@@ -310,7 +434,7 @@
                     }
                     if (p.x + 60 < localPlayer.x && !p.passed && !localPlayer.dead) {
                         score++; scoreEl.innerText = score; p.passed = true;
-                        socket.emit('scoreUpdate', score); 
+                        socket.emit('scoreUpdate', score);
                     }
                     if (p.x + 60 < -100) { pipes.shift(); i--; }
                 }
@@ -336,51 +460,43 @@
             function loop() {
                 if (!isRunning) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                World.draw(); 
+
+                World.draw();
                 updatePipesLogic();
-                
-                // MÁGICA DE POSIÇÃO (Você só os vê se estiverem perto)
+
                 for (let id in remotePlayers) {
                     let rp = remotePlayers[id];
                     if (!rp.dead && rp.dist !== undefined) {
-                        // Calcula o X relativo: Minha posição é 100.
-                        // Se o cara tá 200 pixels na minha frente, ele aparece no X=300 na minha tela.
                         let myDist = localPlayer ? localPlayer.distance : 0;
                         let relativeX = 100 + (rp.dist - myDist);
-
-                        // Só desenha se ele estiver no campo de visão da tela para poupar CPU
-                        if(relativeX > -50 && relativeX < canvas.width + 50) {
+                        if (relativeX > -50 && relativeX < canvas.width + 50) {
                             drawBall(relativeX, rp.y, 15, rp.color, rp.name, false);
                         }
                     }
                 }
-                
+
                 if (localPlayer) { localPlayer.update(); localPlayer.draw(); }
-                
-                // Desenha o mapa por cima de tudo
+
                 drawMinimap();
 
-                frames++; 
+                frames++;
                 requestAnimationFrame(loop);
             }
 
-            // --- CONTROLES DA TELA ---
-            window.startGame = function() {
+            window.startGame = function () {
                 let name = document.getElementById('player-name').value || "Player";
-                
                 pipes = []; score = 0; frames = 0; scoreEl.innerText = "0";
-                
+
                 localPlayer = new LocalBall(name, selectedColor);
                 socket.emit('start', { name: name, color: selectedColor });
-                
+
                 startScreen.classList.add('hidden');
                 goScreen.classList.add('hidden');
-                isRunning = true; 
+                isRunning = true;
                 loop();
             };
 
-            window.resetGame = function() { location.reload(); };
+            window.resetGame = function () { location.reload(); };
 
             function endGame() {
                 isRunning = false;
@@ -389,15 +505,22 @@
             }
 
             const action = (e) => {
-                if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
-                    if (e.type === 'touchstart') e.preventDefault();
-                    if (isRunning && localPlayer && !localPlayer.dead) localPlayer.flap();
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.classList.contains('c-btn')) {
+                    return;
+                }
+
+                if (e.type === 'touchstart') e.preventDefault();
+
+                if (isRunning && localPlayer && !localPlayer.dead) {
+                    localPlayer.flap();
                 }
             };
+
             window.addEventListener('mousedown', action);
             window.addEventListener('keydown', (e) => { if (e.code === 'Space') action(e); });
             window.addEventListener('touchstart', action, { passive: false });
         });
     </script>
 </body>
+
 </html>
