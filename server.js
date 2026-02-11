@@ -97,9 +97,7 @@ io.on('connection', (socket) => {
         });
 
         socket.emit('currentPlayers', rooms[roomId].players);
-
         socket.broadcast.to(roomId).emit('newPlayer', rooms[roomId].players[socket.id]);
-
         updateLobby(roomId);
     });
 
@@ -174,5 +172,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor Final rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Pronto na porta ${PORT}`);
 });
