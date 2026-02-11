@@ -7,69 +7,146 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-let players = {};
+let rooms = {};
 
-function broadcastLeader() {
+function broadcastLeader(roomId) {
+    if (!rooms[roomId]) return;
     let leader = { name: '---', score: -1 };
 
-    for (let id in players) {
-        if (players[id].score > leader.score) {
-            leader = { name: players[id].name, score: players[id].score };
+    for (let id in rooms[roomId].players) {
+        if (rooms[roomId].players[id].score > leader.score) {
+            leader = { name: rooms[roomId].players[id].name, score: rooms[roomId].players[id].score };
         }
     }
+    io.to(roomId).emit('updateLeader', leader);
+}
 
-    io.emit('updateLeader', leader);
+function updateLobby(roomId) {
+    if (rooms[roomId]) {
+        io.to(roomId).emit('lobbyUpdate', rooms[roomId].players);
+    }
 }
 
 io.on('connection', (socket) => {
-    console.log('Conectado:', socket.id);
+    console.log('Piloto conectado:', socket.id);
 
-    socket.on('start', (data) => {
-        players[socket.id] = {
+    socket.on('joinOrCreateRoom', (data) => {
+        const roomId = data.roomId.toUpperCase();
+        let isHost = false;
+
+        if (!rooms[roomId]) {
+            rooms[roomId] = {
+                id: roomId,
+                hostId: socket.id,
+                state: 'waiting',
+                difficulty: data.difficulty || 'medio',
+                blueprint: Array.from({ length: 1000 }, () => Math.random()),
+                players: {}
+            };
+            isHost = true;
+            console.log(`Sala [${roomId}] CRIADA no nível ${data.difficulty}`);
+        } else {
+            if (rooms[roomId].state === 'playing') {
+                socket.emit('roomError', 'O jogo já começou nesta sala! Aguarde no menu.');
+                return;
+            }
+        }
+
+        socket.join(roomId);
+        socket.roomId = roomId;
+
+        rooms[roomId].players[socket.id] = {
             id: socket.id,
-            y: 300,
-            dist: 0,
+            isHost: isHost,
+            y: 300, dist: 0,
             color: data.color || '#00ffff',
             name: data.name || 'Player',
-            score: 0,
-            dead: false
+            score: 0, dead: false
         };
 
-        socket.emit('currentPlayers', players);
-        socket.broadcast.emit('newPlayer', players[socket.id]);
-        broadcastLeader();
+        socket.emit('roomJoined', {
+            roomId: roomId,
+            blueprint: rooms[roomId].blueprint,
+            difficulty: rooms[roomId].difficulty,
+            isHost: isHost
+        });
+
+        updateLobby(roomId);
+    });
+
+    socket.on('startGame', () => {
+        let roomId = socket.roomId;
+        if (roomId && rooms[roomId] && rooms[roomId].hostId === socket.id) {
+            rooms[roomId].state = 'playing';
+            io.to(roomId).emit('gameStarted');
+        }
+    });
+
+    socket.on('returnToLobby', () => {
+        let roomId = socket.roomId;
+        if (roomId && rooms[roomId] && rooms[roomId].hostId === socket.id) {
+            rooms[roomId].state = 'waiting';
+
+            rooms[roomId].blueprint = Array.from({ length: 1000 }, () => Math.random());
+
+            for (let id in rooms[roomId].players) {
+                rooms[roomId].players[id].score = 0;
+                rooms[roomId].players[id].dist = 0;
+                rooms[roomId].players[id].dead = false;
+                rooms[roomId].players[id].y = 300;
+            }
+
+            io.to(roomId).emit('returnedToLobby', {
+                blueprint: rooms[roomId].blueprint
+            });
+
+            updateLobby(roomId);
+            broadcastLeader(roomId);
+        }
     });
 
     socket.on('move', (data) => {
-        if (players[socket.id]) {
-            players[socket.id].y = data.y;
-            players[socket.id].dist = data.dist;
-            socket.broadcast.emit('updatePlayer', { id: socket.id, y: data.y, dist: data.dist });
+        let roomId = socket.roomId;
+        if (roomId && rooms[roomId] && rooms[roomId].players[socket.id]) {
+            rooms[roomId].players[socket.id].y = data.y;
+            rooms[roomId].players[socket.id].dist = data.dist;
+            socket.broadcast.to(roomId).emit('updatePlayer', { id: socket.id, y: data.y, dist: data.dist });
         }
     });
 
     socket.on('scoreUpdate', (newScore) => {
-        if (players[socket.id]) {
-            players[socket.id].score = newScore;
-            broadcastLeader();
+        let roomId = socket.roomId;
+        if (roomId && rooms[roomId] && rooms[roomId].players[socket.id]) {
+            rooms[roomId].players[socket.id].score = newScore;
+            broadcastLeader(roomId);
         }
     });
 
     socket.on('died', () => {
-        if (players[socket.id]) {
-            players[socket.id].dead = true;
-            io.emit('playerDied', socket.id);
+        let roomId = socket.roomId;
+        if (roomId && rooms[roomId] && rooms[roomId].players[socket.id]) {
+            rooms[roomId].players[socket.id].dead = true;
+            io.to(roomId).emit('playerDied', socket.id);
         }
     });
 
     socket.on('disconnect', () => {
-        delete players[socket.id];
-        io.emit('removePlayer', socket.id);
-        broadcastLeader();
+        let roomId = socket.roomId;
+        if (roomId && rooms[roomId]) {
+            delete rooms[roomId].players[socket.id];
+            io.to(roomId).emit('removePlayer', socket.id);
+            updateLobby(roomId);
+            broadcastLeader(roomId);
+
+            if (Object.keys(rooms[roomId].players).length === 0) {
+                delete rooms[roomId];
+                console.log(`Sala [${roomId}] foi fechada.`);
+            }
+        }
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor de Salas rodando na porta ${PORT}`);
 });

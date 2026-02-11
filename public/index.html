@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-PT">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Glide - Real Race</title>
+    <title>Neon Glide</title>
     <link rel="shortcut icon" href="icon.png" type="image/x-icon">
-    li
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap');
 
@@ -81,7 +81,6 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            -webkit-backdrop-filter: blur(5px);
             backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
@@ -95,14 +94,15 @@
         .hidden {
             opacity: 0;
             pointer-events: none;
+            display: none !important;
         }
 
         h1 {
             font-size: 40px;
             color: #fff;
-            margin-bottom: 5px;
             text-shadow: 0 0 20px #0ff;
             text-align: center;
+            margin-bottom: 10px;
         }
 
         p {
@@ -119,7 +119,9 @@
             border: 1px solid #333;
             text-align: center;
             width: 85%;
-            max-width: 320px;
+            max-width: 350px;
+            overflow-y: auto;
+            max-height: 85vh;
         }
 
         label {
@@ -128,9 +130,11 @@
             margin-bottom: 5px;
             font-size: 12px;
             letter-spacing: 1px;
+            margin-top: 15px;
         }
 
-        input[type="text"] {
+        input[type="text"],
+        select {
             background: #000;
             border: 2px solid #555;
             color: #fff;
@@ -141,11 +145,12 @@
             width: 100%;
             border-radius: 8px;
             outline: none;
-            margin-bottom: 15px;
             box-sizing: border-box;
+            cursor: pointer;
         }
 
-        input[type="text"]:focus {
+        input[type="text"]:focus,
+        select:focus {
             border-color: #0ff;
         }
 
@@ -153,7 +158,7 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-top: 5px;
         }
 
         .c-btn {
@@ -162,7 +167,6 @@
             border-radius: 50%;
             border: 2px solid #333;
             cursor: pointer;
-            transition: transform 0.2s;
             pointer-events: auto;
         }
 
@@ -176,19 +180,76 @@
             background: linear-gradient(45deg, #00ccff, #0066ff);
             border: none;
             color: white;
-            padding: 15px 0;
+            padding: 12px 0;
             width: 100%;
-            font-size: 20px;
+            font-size: 18px;
             font-family: 'Orbitron';
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 20px #00ccff;
-            margin-top: 10px;
+            box-shadow: 0 0 15px #00ccff;
+            margin-top: 25px;
+        }
+
+        .play-btn.join {
+            background: linear-gradient(45deg, #ff00ff, #9900ff);
+            box-shadow: 0 0 15px #ff00ff;
+        }
+
+        .play-btn.start {
+            background: linear-gradient(45deg, #00ff00, #009900);
+            box-shadow: 0 0 20px #00ff00;
+            font-size: 22px;
+        }
+
+        .play-btn.leave {
+            background: #333;
+            box-shadow: 0 0 10px #000;
+            font-size: 16px;
         }
 
         .play-btn:active {
             transform: scale(0.95);
+        }
+
+        .player-list {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            border: 1px solid #555;
+            min-height: 100px;
+        }
+
+        .lobby-player {
+            color: #fff;
+            font-size: 16px;
+            padding: 5px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lobby-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 5px currentColor;
+        }
+
+        .room-code-display {
+            font-size: 30px;
+            color: #ffd700;
+            letter-spacing: 5px;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px dashed #ffd700;
+            display: inline-block;
+            margin: 15px 0;
         }
 
         @media (max-width: 600px) {
@@ -206,12 +267,7 @@
             }
 
             h1 {
-                font-size: 32px;
-            }
-
-            .c-btn {
-                width: 45px;
-                height: 45px;
+                font-size: 30px;
             }
         }
     </style>
@@ -226,23 +282,72 @@
             <div class="hud-item"><span class="icon">🏆</span> <span id="score-txt">0</span></div>
         </div>
 
-        <div id="start-screen" class="screen">
+        <div id="profile-screen" class="screen">
             <h1>NEON GLIDE</h1>
-            <p>Corrida Multiplayer Real</p>
-
+            <p>Crie o seu piloto</p>
             <div class="custom-area">
-                <label>PILOTO</label>
-                <input type="text" id="player-name" value="Player 1" maxlength="10" placeholder="Digite seu nome">
-                <label>COR</label>
+                <label>O SEU NOME</label>
+                <input type="text" id="player-name" value="Piloto" maxlength="10">
+
+                <label>A SUA COR</label>
                 <div class="colors" id="color-options"></div>
-                <button class="play-btn" onclick="startGame()">DECOLAR</button>
+
+                <button class="play-btn" onclick="goToRoomScreen()">CONTINUAR</button>
+            </div>
+        </div>
+
+        <div id="room-screen" class="screen hidden">
+            <h1>SALAS</h1>
+            <p>Jogue com amigos</p>
+            <div class="custom-area">
+                <label>CRIAR UMA NOVA SALA</label>
+                <select id="room-diff" style="margin-bottom: 10px;">
+                    <option value="facil">Fácil</option>
+                    <option value="medio" selected>Média</option>
+                    <option value="hard">Hardcore</option>
+                </select>
+                <button class="play-btn" onclick="createRoom()">CRIAR SALA</button>
+
+                <hr style="border-color: #333; margin: 20px 0;">
+
+                <label>TEM UM CÓDIGO?</label>
+                <input type="text" id="join-code" placeholder="EX: A1B2C" maxlength="6"
+                    style="text-transform: uppercase;">
+                <button class="play-btn join" onclick="joinRoom()">ENTRAR NA SALA</button>
+
+                <button class="play-btn leave" onclick="goToProfileScreen()">VOLTAR</button>
+            </div>
+        </div>
+
+        <div id="lobby-screen" class="screen hidden">
+            <h1>SALA DE ESPERA</h1>
+            <div class="custom-area">
+                <label>CÓDIGO DA SALA (Envie aos amigos)</label>
+                <div class="room-code-display" id="display-room-code">---</div>
+
+                <label>JOGADORES CONECTADOS</label>
+                <div class="player-list" id="lobby-player-list"></div>
+
+                <div id="host-controls" class="hidden">
+                    <button class="play-btn start" onclick="startGameHost()">COMEÇAR A CORRIDA</button>
+                </div>
+                <div id="guest-controls" class="hidden">
+                    <p style="color: #0ff; font-weight: bold; font-size: 16px;">A aguardar que o anfitrião inicie o
+                        jogo...</p>
+                </div>
             </div>
         </div>
 
         <div id="game-over-screen" class="screen hidden">
             <h1 style="color: #ff3333">BATIDO!</h1>
-            <p id="go-msg" style="color:#fff; font-size:18px;">Score: 0</p>
-            <button class="play-btn" style="width: 200px" onclick="resetGame()">REINICIAR</button>
+            <p id="go-msg" style="color:#fff; font-size:18px;">Pontuação: 0</p>
+
+            <button id="btn-return-lobby" class="play-btn start hidden"
+                style="width: 250px; font-size: 16px; margin-bottom: 10px;" onclick="returnToLobbyHost()">VOLTAR AO
+                LOBBY</button>
+            <p id="guest-wait-msg" style="color: #0ff; font-weight: bold; font-size: 14px;" class="hidden">A aguardar
+                anfitrião reiniciar a sala...</p>
+            <button class="play-btn leave" style="width: 250px" onclick="leaveGame()">SAIR DA SALA</button>
         </div>
     </div>
 
@@ -258,19 +363,25 @@
             const aliveEl = document.getElementById('alive-txt');
             const scoreEl = document.getElementById('score-txt');
             const leaderEl = document.getElementById('leader-txt');
-            const startScreen = document.getElementById('start-screen');
+
+            const profileScreen = document.getElementById('profile-screen');
+            const roomScreen = document.getElementById('room-screen');
+            const lobbyScreen = document.getElementById('lobby-screen');
             const goScreen = document.getElementById('game-over-screen');
 
             let isRunning = false;
+            let isAmIHost = false;
             let frames = 0;
             let score = 0;
+            let pipesCreated = 0;
 
-            // Dificuldade Médio -> Hard (O Ponto Ideal)
-            const GRAVITY = 0.24;    // Peso moderado (nem pena, nem âncora)
-            const JUMP = 3.8;        // Pulo na medida certa para essa gravidade
-            const PIPE_SPEED = 3.0;  // Velocidade ágil, exige reflexo, mas dá tempo de ver
-            const PIPE_GAP = 165;    // Espaço justo! Passa com tranquilidade se alinhar bem
-            const SPAWN_RATE = 100;  // Um cano novo a cada ~1.6 segundos
+            const DIFF_SETTINGS = {
+                facil: { grav: 0.20, jump: 3.5, speed: 2.5, gap: 200, spawn: 120 },
+                medio: { grav: 0.22, jump: 3.6, speed: 2.8, gap: 180, spawn: 110 },
+                hard: { grav: 0.28, jump: 4.2, speed: 3.5, gap: 140, spawn: 80 }
+            };
+            let currentDiff = DIFF_SETTINGS['medio'];
+            let mapBlueprint = [];
 
             const neonColors = [
                 { hex: '#00ffff' }, { hex: '#ff00ff' }, { hex: '#00ff00' },
@@ -287,11 +398,8 @@
                     btn.style.backgroundColor = c.hex;
                     btn.style.borderColor = "#333";
                     btn.style.boxShadow = `0 0 5px ${c.hex}`;
-
                     btn.onclick = () => {
-                        document.querySelectorAll('.c-btn').forEach(b => {
-                            b.classList.remove('selected'); b.style.borderColor = "#333"; b.style.transform = "scale(1)";
-                        });
+                        document.querySelectorAll('.c-btn').forEach(b => { b.classList.remove('selected'); b.style.borderColor = "#333"; b.style.transform = "scale(1)"; });
                         btn.classList.add('selected'); btn.style.borderColor = "#fff"; btn.style.transform = "scale(1.2)";
                         selectedColor = c.hex;
                     };
@@ -309,26 +417,23 @@
             class LocalBall {
                 constructor(name, color) {
                     this.name = name; this.color = color;
-                    this.x = 100;
-                    this.y = canvas.height / 2;
+                    this.x = 100; this.y = canvas.height / 2;
                     this.distance = 0;
                     this.radius = 15; this.velocity = 0; this.dead = false;
                 }
                 update() {
                     if (this.dead) return;
-                    this.velocity += GRAVITY; this.y += this.velocity;
-
+                    this.velocity += currentDiff.grav;
+                    this.y += this.velocity;
                     if (this.y + this.radius > canvas.height || this.y - this.radius < 0) this.die();
-
-                    this.distance += PIPE_SPEED;
-
+                    this.distance += currentDiff.speed;
                     socket.emit('move', { y: this.y, dist: this.distance });
                 }
                 draw() {
                     if (this.dead) return;
                     drawBall(this.x, this.y, this.radius, this.color, this.name, true);
                 }
-                flap() { if (!this.dead) this.velocity = -JUMP; }
+                flap() { if (!this.dead) this.velocity = -currentDiff.jump; }
                 die() {
                     this.dead = true;
                     socket.emit('died');
@@ -351,59 +456,132 @@
             }
 
             function drawMinimap() {
-                const mapWidth = canvas.width * 0.8;
-                const mapX = canvas.width * 0.1;
-                const mapY = 80;
-
-                ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-                ctx.fillRect(mapX, mapY, mapWidth, 4);
+                const mapWidth = canvas.width * 0.8; const mapX = canvas.width * 0.1; const mapY = 80;
+                ctx.fillStyle = "rgba(255, 255, 255, 0.2)"; ctx.fillRect(mapX, mapY, mapWidth, 4);
 
                 let maxDist = localPlayer ? localPlayer.distance : 0;
-                for (let id in remotePlayers) {
-                    if (!remotePlayers[id].dead && remotePlayers[id].dist > maxDist) {
-                        maxDist = remotePlayers[id].dist;
-                    }
-                }
-
+                for (let id in remotePlayers) { if (!remotePlayers[id].dead && remotePlayers[id].dist > maxDist) maxDist = remotePlayers[id].dist; }
                 let barScale = Math.max(3000, maxDist * 1.25);
 
                 function drawDotOnMap(dist, color, isLocal) {
                     let dotX = mapX + (dist / barScale) * mapWidth;
-                    ctx.beginPath();
-                    ctx.arc(dotX, mapY + 2, isLocal ? 6 : 4, 0, Math.PI * 2);
-                    ctx.fillStyle = color;
-                    ctx.shadowBlur = 10; ctx.shadowColor = color;
-                    ctx.fill(); ctx.shadowBlur = 0;
+                    ctx.beginPath(); ctx.arc(dotX, mapY + 2, isLocal ? 6 : 4, 0, Math.PI * 2);
+                    ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color; ctx.fill(); ctx.shadowBlur = 0;
                 }
+
+                for (let id in remotePlayers) { let rp = remotePlayers[id]; if (!rp.dead && rp.dist !== undefined) drawDotOnMap(rp.dist, rp.color, false); }
+                if (localPlayer && !localPlayer.dead) drawDotOnMap(localPlayer.distance, localPlayer.color, true);
+            }
+
+            window.goToRoomScreen = function () {
+                profileScreen.classList.add('hidden');
+                roomScreen.classList.remove('hidden');
+            };
+
+            window.goToProfileScreen = function () {
+                roomScreen.classList.add('hidden');
+                profileScreen.classList.remove('hidden');
+            };
+
+            window.createRoom = function () {
+                let randomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+                let rDiff = document.getElementById('room-diff').value;
+                joinServerRoom(randomCode, rDiff);
+            };
+
+            window.joinRoom = function () {
+                let code = document.getElementById('join-code').value.toUpperCase().trim();
+                if (!code) return alert("Por favor, introduza o código da sala!");
+                joinServerRoom(code, 'medio');
+            };
+
+            function joinServerRoom(code, diff) {
+                let pName = document.getElementById('player-name').value || "Piloto";
+                socket.emit('joinOrCreateRoom', { roomId: code, difficulty: diff, name: pName, color: selectedColor });
+                roomScreen.classList.add('hidden');
+            }
+
+            window.startGameHost = function () { socket.emit('startGame'); };
+            window.returnToLobbyHost = function () { socket.emit('returnToLobby'); };
+            window.leaveGame = function () { location.reload(); };
+
+            socket.on('roomError', (msg) => {
+                alert(msg);
+                roomScreen.classList.remove('hidden');
+            });
+
+            socket.on('roomJoined', (roomData) => {
+                mapBlueprint = roomData.blueprint;
+                currentDiff = DIFF_SETTINGS[roomData.difficulty];
+                isAmIHost = roomData.isHost;
+
+                document.getElementById('display-room-code').innerText = roomData.roomId;
+                lobbyScreen.classList.remove('hidden');
+
+                if (isAmIHost) {
+                    document.getElementById('host-controls').classList.remove('hidden');
+                    document.getElementById('guest-controls').classList.add('hidden');
+                } else {
+                    document.getElementById('host-controls').classList.add('hidden');
+                    document.getElementById('guest-controls').classList.remove('hidden');
+                }
+
+                let pName = document.getElementById('player-name').value || "Piloto";
+                localPlayer = new LocalBall(pName, selectedColor);
+            });
+
+            socket.on('lobbyUpdate', (players) => {
+                const listDiv = document.getElementById('lobby-player-list');
+                listDiv.innerHTML = '';
+                for (let id in players) {
+                    let p = players[id];
+                    let role = p.isHost ? " 👑" : "";
+                    listDiv.innerHTML += `
+                        <div class="lobby-player">
+                            <span class="lobby-color" style="background-color: ${p.color}; color: ${p.color}"></span>
+                            ${p.name} ${role}
+                        </div>
+                    `;
+                }
+            });
+
+            socket.on('gameStarted', () => {
+                pipes = []; score = 0; frames = 0; pipesCreated = 0; scoreEl.innerText = "0";
+                lobbyScreen.classList.add('hidden');
+                isRunning = true;
+                loop();
+            });
+
+            socket.on('returnedToLobby', (data) => {
+                isRunning = false;
+                mapBlueprint = data.blueprint;
+
+                goScreen.classList.add('hidden');
+                lobbyScreen.classList.remove('hidden');
+
+                pipes = []; score = 0; frames = 0; pipesCreated = 0;
+                scoreEl.innerText = "0"; leaderEl.innerText = "---";
+
+                let pName = document.getElementById('player-name').value || "Piloto";
+                localPlayer = new LocalBall(pName, selectedColor);
 
                 for (let id in remotePlayers) {
-                    let rp = remotePlayers[id];
-                    if (!rp.dead && rp.dist !== undefined) {
-                        drawDotOnMap(rp.dist, rp.color, false);
-                    }
+                    remotePlayers[id].dead = false;
+                    remotePlayers[id].dist = 0;
+                    remotePlayers[id].y = 300;
                 }
-
-                if (localPlayer && !localPlayer.dead) {
-                    drawDotOnMap(localPlayer.distance, localPlayer.color, true);
-                }
-            }
+                updateOnlineCounter();
+            });
 
             socket.on('currentPlayers', (serverPlayers) => {
                 for (let id in serverPlayers) if (id !== socket.id) remotePlayers[id] = serverPlayers[id];
                 updateOnlineCounter();
             });
             socket.on('newPlayer', (p) => { remotePlayers[p.id] = p; updateOnlineCounter(); });
-            socket.on('updatePlayer', (data) => {
-                if (remotePlayers[data.id]) {
-                    remotePlayers[data.id].y = data.y;
-                    remotePlayers[data.id].dist = data.dist;
-                }
-            });
+            socket.on('updatePlayer', (data) => { if (remotePlayers[data.id]) { remotePlayers[data.id].y = data.y; remotePlayers[data.id].dist = data.dist; } });
             socket.on('playerDied', (id) => { if (remotePlayers[id]) { remotePlayers[id].dead = true; updateOnlineCounter(); } });
             socket.on('removePlayer', (id) => { delete remotePlayers[id]; updateOnlineCounter(); });
-            socket.on('updateLeader', (leaderData) => {
-                leaderEl.innerText = (leaderData.score >= 0) ? `${leaderData.name} (${leaderData.score})` : "---";
-            });
+            socket.on('updateLeader', (leaderData) => { leaderEl.innerText = (leaderData.score >= 0) ? `${leaderData.name} (${leaderData.score})` : "---"; });
 
             function updateOnlineCounter() {
                 let count = 0;
@@ -413,16 +591,17 @@
             }
 
             function updatePipesLogic() {
-                if (frames % SPAWN_RATE === 0) {
-                    let y = Math.random() * (canvas.height - 300) + 100;
-                    pipes.push({ x: canvas.width, y: y, w: 60, gap: PIPE_GAP, passed: false });
+                if (frames % currentDiff.spawn === 0) {
+                    let randomVal = mapBlueprint[pipesCreated % mapBlueprint.length];
+                    let y = randomVal * (canvas.height - 300) + 100;
+                    pipes.push({ x: canvas.width, y: y, w: 60, gap: currentDiff.gap, passed: false });
+                    pipesCreated++;
                 }
 
                 for (let i = 0; i < pipes.length; i++) {
-                    let p = pipes[i]; p.x -= PIPE_SPEED;
+                    let p = pipes[i]; p.x -= currentDiff.speed;
 
-                    ctx.shadowBlur = 15; ctx.shadowColor = "#00ffff";
-                    ctx.fillStyle = "rgba(0, 255, 255, 0.2)"; ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2;
+                    ctx.shadowBlur = 15; ctx.shadowColor = "#00ffff"; ctx.fillStyle = "rgba(0, 255, 255, 0.2)"; ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2;
                     ctx.fillRect(p.x, 0, 60, p.y); ctx.strokeRect(p.x, 0, 60, p.y);
                     let by = p.y + p.gap;
                     ctx.fillRect(p.x, by, 60, canvas.height - by); ctx.strokeRect(p.x, by, 60, canvas.height - by);
@@ -450,10 +629,7 @@
                     this.gridOffset = (this.gridOffset + 1) % 50;
                     ctx.strokeStyle = "rgba(0, 255, 255, 0.1)"; ctx.lineWidth = 1; ctx.beginPath();
                     for (let i = 0; i < canvas.width; i += 50) { ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); }
-                    for (let i = 0; i < canvas.height; i += 50) {
-                        let y = (i + this.gridOffset) % canvas.height;
-                        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-                    }
+                    for (let i = 0; i < canvas.height; i += 50) { let y = (i + this.gridOffset) % canvas.height; ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
                     ctx.stroke();
                 }
             };
@@ -461,60 +637,42 @@
             function loop() {
                 if (!isRunning) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                World.draw();
-                updatePipesLogic();
+                World.draw(); updatePipesLogic();
 
                 for (let id in remotePlayers) {
                     let rp = remotePlayers[id];
                     if (!rp.dead && rp.dist !== undefined) {
                         let myDist = localPlayer ? localPlayer.distance : 0;
                         let relativeX = 100 + (rp.dist - myDist);
-                        if (relativeX > -50 && relativeX < canvas.width + 50) {
-                            drawBall(relativeX, rp.y, 15, rp.color, rp.name, false);
-                        }
+                        if (relativeX > -50 && relativeX < canvas.width + 50) drawBall(relativeX, rp.y, 15, rp.color, rp.name, false);
                     }
                 }
 
                 if (localPlayer) { localPlayer.update(); localPlayer.draw(); }
 
                 drawMinimap();
-
-                frames++;
-                requestAnimationFrame(loop);
+                frames++; requestAnimationFrame(loop);
             }
-
-            window.startGame = function () {
-                let name = document.getElementById('player-name').value || "Player";
-                pipes = []; score = 0; frames = 0; scoreEl.innerText = "0";
-
-                localPlayer = new LocalBall(name, selectedColor);
-                socket.emit('start', { name: name, color: selectedColor });
-
-                startScreen.classList.add('hidden');
-                goScreen.classList.add('hidden');
-                isRunning = true;
-                loop();
-            };
-
-            window.resetGame = function () { location.reload(); };
 
             function endGame() {
                 isRunning = false;
-                document.getElementById('go-msg').innerText = `Score Final: ${score}`;
+                document.getElementById('go-msg').innerText = `Pontuação: ${score}`;
+
+                if (isAmIHost) {
+                    document.getElementById('btn-return-lobby').classList.remove('hidden');
+                    document.getElementById('guest-wait-msg').classList.add('hidden');
+                } else {
+                    document.getElementById('btn-return-lobby').classList.add('hidden');
+                    document.getElementById('guest-wait-msg').classList.remove('hidden');
+                }
+
                 goScreen.classList.remove('hidden');
             }
 
             const action = (e) => {
-                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.classList.contains('c-btn')) {
-                    return;
-                }
-
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.classList.contains('c-btn')) return;
                 if (e.type === 'touchstart') e.preventDefault();
-
-                if (isRunning && localPlayer && !localPlayer.dead) {
-                    localPlayer.flap();
-                }
+                if (isRunning && localPlayer && !localPlayer.dead) localPlayer.flap();
             };
 
             window.addEventListener('mousedown', action);
