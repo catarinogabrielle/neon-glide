@@ -13,18 +13,37 @@
         body {
             margin: 0;
             padding: 0;
-            background: #000;
+            background: #050505;
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
             touch-action: none;
             -webkit-user-select: none;
             user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            max-height: 100vh;
+            background: #000;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
+            overflow: hidden;
         }
 
         canvas {
             display: block;
             width: 100%;
-            height: 100vh;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
 
         #ui-layer {
@@ -41,11 +60,10 @@
         }
 
         .hud-bar {
-            margin-top: 10px;
+            margin-top: 15px;
             display: flex;
             gap: 10px;
-            width: 95%;
-            max-width: 600px;
+            width: 90%;
             justify-content: space-between;
             pointer-events: none;
         }
@@ -54,14 +72,13 @@
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #0ff;
             color: #fff;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 15px;
-            font-size: 14px;
+            font-size: 13px;
             box-shadow: 0 0 5px #0ff;
             display: flex;
             align-items: center;
             gap: 5px;
-            white-space: nowrap;
         }
 
         .leader-box {
@@ -74,69 +91,13 @@
             font-size: 16px;
         }
 
-        .spectator-alert {
-            color: #ff3333;
-            animation: pulse 1s infinite;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.5;
-            }
-        }
-
-        #ranking-board {
-            position: absolute;
-            top: 70px;
-            right: 10px;
-            width: 160px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #555;
-            border-radius: 10px;
-            padding: 10px;
-            pointer-events: none;
-            display: none;
-        }
-
-        .rank-row {
-            display: flex;
-            justify-content: space-between;
-            color: #fff;
-            font-size: 11px;
-            margin-bottom: 4px;
-            border-bottom: 1px solid #333;
-        }
-
-        .rank-name {
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            max-width: 80px;
-        }
-
-        .rank-dead {
-            color: #ff3333;
-            text-decoration: line-through;
-            opacity: 0.7;
-        }
-
         .screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
@@ -144,7 +105,6 @@
             align-items: center;
             pointer-events: auto;
             transition: opacity 0.3s;
-            z-index: 20;
         }
 
         .hidden {
@@ -154,11 +114,12 @@
         }
 
         h1 {
-            font-size: 40px;
+            font-size: 36px;
             color: #fff;
             text-shadow: 0 0 20px #0ff;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            line-height: 1.2;
         }
 
         p {
@@ -170,14 +131,12 @@
 
         .custom-area {
             background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 15px;
+            padding: 25px;
+            border-radius: 20px;
             border: 1px solid #333;
             text-align: center;
             width: 85%;
-            max-width: 350px;
-            overflow-y: auto;
-            max-height: 85vh;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         label {
@@ -194,15 +153,14 @@
             background: #000;
             border: 2px solid #555;
             color: #fff;
-            padding: 10px;
+            padding: 12px;
             font-family: 'Orbitron';
             font-size: 16px;
             text-align: center;
             width: 100%;
-            border-radius: 8px;
+            border-radius: 10px;
             outline: none;
             box-sizing: border-box;
-            cursor: pointer;
         }
 
         input[type="text"]:focus,
@@ -210,33 +168,11 @@
             border-color: #0ff;
         }
 
-        .colors {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 5px;
-        }
-
-        .c-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #333;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-
-        .c-btn.selected {
-            border-color: #fff;
-            transform: scale(1.15);
-            box-shadow: 0 0 15px currentColor;
-        }
-
         .play-btn {
             background: linear-gradient(45deg, #00ccff, #0066ff);
             border: none;
             color: white;
-            padding: 12px 0;
+            padding: 15px 0;
             width: 100%;
             font-size: 18px;
             font-family: 'Orbitron';
@@ -252,35 +188,68 @@
             box-shadow: 0 0 15px #ff00ff;
         }
 
-        .play-btn.start {
-            background: linear-gradient(45deg, #00ff00, #009900);
-            box-shadow: 0 0 20px #00ff00;
-            font-size: 22px;
-        }
-
         .play-btn.leave {
             background: #333;
             box-shadow: 0 0 10px #000;
-            font-size: 16px;
+            margin-top: 15px;
+            padding: 12px 0;
+            font-size: 14px;
+        }
+
+        .play-btn.start {
+            background: linear-gradient(45deg, #00ff00, #009900);
+            box-shadow: 0 0 20px #00ff00;
         }
 
         .play-btn:active {
             transform: scale(0.95);
         }
 
+        .colors {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .c-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            cursor: pointer;
+        }
+
+        .c-btn.selected {
+            border-color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .room-code-display {
+            font-size: 32px;
+            color: #ffd700;
+            letter-spacing: 5px;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px dashed #ffd700;
+            display: inline-block;
+            margin: 15px 0;
+        }
+
         .player-list {
             background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
             padding: 10px;
-            margin-bottom: 10px;
             text-align: left;
             border: 1px solid #555;
-            min-height: 100px;
+            min-height: 80px;
+            margin-bottom: 10px;
         }
 
         .lobby-player {
             color: #fff;
-            font-size: 16px;
             padding: 5px;
             border-bottom: 1px solid #333;
             display: flex;
@@ -289,143 +258,157 @@
         }
 
         .lobby-color {
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: inline-block;
             box-shadow: 0 0 5px currentColor;
         }
 
-        .room-code-display {
-            font-size: 30px;
-            color: #ffd700;
-            letter-spacing: 5px;
-            background: rgba(255, 215, 0, 0.1);
+        .rank-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 5px;
             padding: 10px;
-            border-radius: 10px;
-            border: 1px dashed #ffd700;
-            display: inline-block;
-            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 3px solid transparent;
         }
 
-        @media (max-width: 600px) {
-            .hud-bar {
-                width: 98%;
-                gap: 5px;
-                margin-top: 5px;
-            }
+        .rank-row.dead {
+            opacity: 0.5;
+            filter: grayscale(1);
+        }
 
-            .hud-item {
-                padding: 5px 8px;
-                font-size: 11px;
-                flex: 1;
-                justify-content: center;
-            }
+        .rank-row.winner {
+            border-left-color: #ffd700;
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent);
+        }
 
-            h1 {
-                font-size: 30px;
-            }
+        .rank-pos {
+            font-weight: bold;
+            width: 25px;
+            color: #aaa;
+        }
+
+        .rank-name {
+            flex: 1;
+            text-align: left;
+            font-weight: bold;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rank-score {
+            color: #0ff;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
-
-    <div id="ui-layer">
-        <div class="hud-bar">
-            <div class="hud-item"><span class="icon">👤</span> <span id="alive-txt">0</span></div>
-            <div class="hud-item leader-box"><span class="icon">👑</span> <span id="leader-txt">---</span></div>
-            <div class="hud-item"><span class="icon">🏆</span> <span id="score-txt">0</span></div>
-            <div class="hud-item hidden" id="spectator-badge"><span class="spectator-alert">ESPECTADOR</span></div>
-        </div>
-
-        <div id="ranking-board">
-            <div style="text-align:center; color:#0ff; font-size:10px; margin-bottom:5px;">CLASSIFICAÇÃO</div>
-            <div id="rank-list"></div>
-        </div>
-
-        <div id="profile-screen" class="screen">
-            <h1>NEON GLIDE</h1>
-            <p>Crie o seu piloto</p>
-            <div class="custom-area">
-                <label>O SEU NOME</label>
-                <input type="text" id="player-name" value="Piloto" maxlength="10">
-                <label>A SUA COR</label>
-                <div class="colors" id="color-options"></div>
-                <button class="play-btn" onclick="goToRoomScreen()">CONTINUAR</button>
+    <div id="game-container">
+        <div id="ui-layer">
+            <div class="hud-bar" id="game-hud">
+                <div class="hud-item"><span class="icon">👥</span> <span id="alive-txt">0</span></div>
+                <div class="hud-item leader-box"><span class="icon">👑</span> <span id="leader-txt">---</span></div>
+                <div class="hud-item"><span class="icon">🏆</span> <span id="score-txt">0</span></div>
             </div>
-        </div>
 
-        <div id="room-screen" class="screen hidden">
-            <h1>SALAS</h1>
-            <p>Jogue com amigos</p>
-            <div class="custom-area">
-                <label>CRIAR UMA NOVA SALA</label>
-                <select id="room-diff" style="margin-bottom: 10px;">
-                    <option value="facil">Fácil</option>
-                    <option value="medio" selected>Média</option>
-                    <option value="hard">Hardcore</option>
-                </select>
-                <button class="play-btn" onclick="createRoom()">CRIAR SALA</button>
-                <hr style="border-color: #333; margin: 20px 0;">
-                <label>TEM UM CÓDIGO?</label>
-                <input type="text" id="join-code" placeholder="EX: A1B2C" maxlength="6"
-                    style="text-transform: uppercase;">
-                <button class="play-btn join" onclick="joinRoom()">ENTRAR NA SALA</button>
-                <button class="play-btn leave" onclick="goToProfileScreen()">VOLTAR</button>
-            </div>
-        </div>
-
-        <div id="lobby-screen" class="screen hidden">
-            <h1>SALA DE ESPERA</h1>
-            <div class="custom-area">
-                <label>CÓDIGO DA SALA (Envie aos amigos)</label>
-                <div class="room-code-display" id="display-room-code">---</div>
-                <label>JOGADORES CONECTADOS</label>
-                <div class="player-list" id="lobby-player-list"></div>
-                <div id="host-controls" class="hidden">
-                    <button class="play-btn start" onclick="startGameHost()">COMEÇAR A CORRIDA</button>
+            <div id="profile-screen" class="screen">
+                <h1>NEON GLIDE</h1>
+                <div class="custom-area">
+                    <label>SEU NOME</label>
+                    <input type="text" id="player-name" value="Player 1" maxlength="10">
+                    <label>SUA COR</label>
+                    <div class="colors" id="color-options"></div>
+                    <button class="play-btn" onclick="goToRoomScreen()">CONTINUAR</button>
                 </div>
-                <div id="guest-controls" class="hidden">
-                    <p style="color: #0ff; font-weight: bold; font-size: 16px;">A aguardar que o anfitrião inicie...</p>
+            </div>
+
+            <div id="room-screen" class="screen hidden">
+                <h1>MODO DE JOGO</h1>
+                <div class="custom-area">
+                    <label>DIFICULDADE DA SALA</label>
+                    <select id="room-diff" style="margin-bottom: 15px;">
+                        <option value="facil">🟢 Fácil</option>
+                        <option value="medio" selected>🟡 Média</option>
+                        <option value="hard">🔴 Hardcore</option>
+                    </select>
+
+                    <button class="play-btn" style="margin-top: 5px;" onclick="createRoom()">CRIAR SALA</button>
+
+                    <hr style="border-color: #333; margin: 20px 0;">
+
+                    <label>ENTRAR EM SALA</label>
+                    <input type="text" id="join-code" placeholder="CÓDIGO"
+                        style="text-transform:uppercase; letter-spacing: 2px;">
+                    <button class="play-btn join" onclick="joinRoom()">ENTRAR</button>
+
+                    <button class="play-btn leave" onclick="goToProfileScreen()">VOLTAR</button>
                 </div>
-                <button class="play-btn leave" onclick="leaveGame()">SAIR DA SALA</button>
+            </div>
+
+            <div id="lobby-screen" class="screen hidden">
+                <h1>LOBBY</h1>
+                <div class="custom-area">
+                    <label>CÓDIGO DA SALA</label>
+                    <div class="room-code-display" id="display-room-code">---</div>
+
+                    <label>JOGADORES</label>
+                    <div class="player-list" id="lobby-player-list"></div>
+
+                    <div id="host-controls" class="hidden">
+                        <button class="play-btn start" onclick="startGameHost()">INICIAR PARTIDA</button>
+                    </div>
+                    <div id="guest-controls" class="hidden">
+                        <p style="color: #0ff; font-size: 12px; margin-top: 15px;">Aguardando Líder iniciar...</p>
+                    </div>
+                    <button class="play-btn leave" onclick="leaveGame()">SAIR</button>
+                </div>
+            </div>
+
+            <div id="ranking-screen" class="screen hidden">
+                <h1>CLASSIFICAÇÃO</h1>
+                <div class="custom-area rank-popup-container">
+                    <div id="final-ranking-list" style="max-height: 200px; overflow-y: auto;">
+                    </div>
+
+                    <button id="btn-return-lobby" class="play-btn start hidden" onclick="returnToLobbyHost()">NOVA
+                        RODADA</button>
+
+                    <p id="guest-wait-msg" class="hidden" style="color: #aaa; font-size: 12px; margin-top: 15px;">
+                        Aguardando fim da rodada...</p>
+
+                    <button class="play-btn leave" onclick="leaveGame()">SAIR DA SALA</button>
+                </div>
             </div>
         </div>
 
-        <div id="game-over-screen" class="screen hidden">
-            <h1 style="color: #ff3333">FIM DA RODADA</h1>
-            <p id="go-msg" style="color:#fff; font-size:18px;">Vencedor: ---</p>
-            <button id="btn-return-lobby" class="play-btn start hidden"
-                style="width: 250px; font-size: 16px; margin-bottom: 10px;" onclick="returnToLobbyHost()">VOLTAR AO
-                LOBBY</button>
-            <p id="guest-wait-msg" style="color: #0ff; font-weight: bold; font-size: 14px;" class="hidden">A aguardar
-                anfitrião reiniciar...</p>
-            <button class="play-btn leave" style="width: 250px" onclick="leaveGame()">SAIR DA SALA</button>
-        </div>
+        <canvas id="canvas"></canvas>
+
     </div>
-
-    <canvas id="canvas"></canvas>
-
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const socket = io();
             const canvas = document.getElementById('canvas');
+            const gameContainer = document.getElementById('game-container');
             const ctx = canvas.getContext('2d');
             const aliveEl = document.getElementById('alive-txt');
             const scoreEl = document.getElementById('score-txt');
             const leaderEl = document.getElementById('leader-txt');
 
-            // UI
             const profileScreen = document.getElementById('profile-screen');
             const roomScreen = document.getElementById('room-screen');
             const lobbyScreen = document.getElementById('lobby-screen');
-            const goScreen = document.getElementById('game-over-screen');
-            const rankBoard = document.getElementById('ranking-board');
-            const rankList = document.getElementById('rank-list');
-            const spectatorBadge = document.getElementById('spectator-badge');
+            const rankingScreen = document.getElementById('ranking-screen');
+            const gameHud = document.getElementById('game-hud');
+            const rankListEl = document.getElementById('final-ranking-list');
 
             let isRunning = false;
             let isAmIHost = false;
@@ -442,32 +425,27 @@
             let currentDiff = DIFF_SETTINGS['medio'];
             let mapBlueprint = [];
 
-            const neonColors = [
-                { hex: '#00ffff' }, { hex: '#ff00ff' }, { hex: '#00ff00' },
-                { hex: '#ffff00' }, { hex: '#ff3300' }
-            ];
-            let selectedColor = neonColors[0].hex;
+            const neonColors = ['#00ffff', '#ff00ff', '#00ff00', '#ffff00', '#ff3300'];
+            let selectedColor = neonColors[0];
 
             const colorContainer = document.getElementById('color-options');
-            if (colorContainer) {
-                colorContainer.innerHTML = '';
-                neonColors.forEach((c, i) => {
-                    let btn = document.createElement('div');
-                    btn.className = `c-btn ${i === 0 ? 'selected' : ''}`;
-                    btn.style.backgroundColor = c.hex;
-                    btn.style.borderColor = "#333";
-                    btn.style.boxShadow = `0 0 5px ${c.hex}`;
-                    btn.onclick = () => {
-                        document.querySelectorAll('.c-btn').forEach(b => { b.classList.remove('selected'); b.style.borderColor = "#333"; b.style.transform = "scale(1)"; });
-                        btn.classList.add('selected'); btn.style.borderColor = "#fff"; btn.style.transform = "scale(1.2)";
-                        selectedColor = c.hex;
-                    };
-                    colorContainer.appendChild(btn);
-                });
-            }
+            neonColors.forEach((c, i) => {
+                let btn = document.createElement('div');
+                btn.className = `c-btn ${i === 0 ? 'selected' : ''}`;
+                btn.style.backgroundColor = c;
+                btn.onclick = () => {
+                    document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected'); selectedColor = c;
+                };
+                colorContainer.appendChild(btn);
+            });
 
-            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-            window.addEventListener('resize', resize); resize();
+            function resize() {
+                canvas.width = gameContainer.clientWidth;
+                canvas.height = gameContainer.clientHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
 
             let localPlayer = null;
             let remotePlayers = {};
@@ -477,8 +455,7 @@
                 constructor(name, color) {
                     this.name = name; this.color = color;
                     this.x = 100; this.y = canvas.height / 2;
-                    this.distance = 0;
-                    this.radius = 15; this.velocity = 0; this.dead = false;
+                    this.distance = 0; this.radius = 15; this.velocity = 0; this.dead = false;
                 }
                 update() {
                     if (this.dead) return;
@@ -488,70 +465,47 @@
                     this.distance += currentDiff.speed;
                     socket.emit('move', { y: this.y, dist: this.distance });
                 }
-                draw(cameraDist) {
+                draw() {
                     if (this.dead) return;
-                    let drawX = 100 + (this.distance - cameraDist);
-                    if (drawX > -50 && drawX < canvas.width + 50) {
-                        drawBall(drawX, this.y, this.radius, this.color, this.name, true);
-                    }
+                    drawBall(this.x, this.y, this.radius, this.color, this.name, true);
                 }
                 flap() { if (!this.dead) this.velocity = -currentDiff.jump; }
                 die() {
                     this.dead = true;
                     socket.emit('died');
                     updateOnlineCounter();
-                    spectatorBadge.classList.remove('hidden');
+                    showRankingPopup();
                 }
             }
 
-            function drawBall(x, y, radius, color, name, isLocal) {
+            function drawBall(x, y, r, c, name, isLocal) {
                 ctx.save(); ctx.translate(x, y);
-                ctx.shadowBlur = isLocal ? 20 : 10; ctx.shadowColor = color; ctx.fillStyle = color;
+                ctx.shadowBlur = isLocal ? 20 : 10; ctx.shadowColor = c; ctx.fillStyle = c;
                 if (!isLocal) ctx.globalAlpha = 0.6;
-                ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
                 ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
                 ctx.beginPath(); ctx.arc(-5, -5, 5, 0, Math.PI * 2); ctx.fill();
                 ctx.restore();
                 ctx.globalAlpha = 1; ctx.fillStyle = "#fff";
-                ctx.font = isLocal ? "bold 14px Orbitron" : "10px Orbitron";
+                ctx.font = isLocal ? "bold 12px Orbitron" : "10px Orbitron";
                 ctx.textAlign = "center"; ctx.fillText(name, x, y - 25);
             }
 
-            function drawMinimap() {
-                const mapWidth = canvas.width * 0.8; const mapX = canvas.width * 0.1; const mapY = 80;
-                ctx.fillStyle = "rgba(255, 255, 255, 0.2)"; ctx.fillRect(mapX, mapY, mapWidth, 4);
+            window.goToRoomScreen = () => { profileScreen.classList.add('hidden'); roomScreen.classList.remove('hidden'); };
+            window.goToProfileScreen = () => { roomScreen.classList.add('hidden'); profileScreen.classList.remove('hidden'); };
 
-                let maxDist = localPlayer ? localPlayer.distance : 0;
-                for (let id in remotePlayers) { if (remotePlayers[id].dist > maxDist) maxDist = remotePlayers[id].dist; }
-                let barScale = Math.max(3000, maxDist * 1.25);
-
-                function drawDotOnMap(dist, color, isLocal) {
-                    let dotX = mapX + (dist / barScale) * mapWidth;
-                    ctx.beginPath(); ctx.arc(dotX, mapY + 2, isLocal ? 6 : 4, 0, Math.PI * 2);
-                    ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color; ctx.fill(); ctx.shadowBlur = 0;
-                }
-
-                for (let id in remotePlayers) { let rp = remotePlayers[id]; if (rp.dist !== undefined) drawDotOnMap(rp.dist, rp.color, false); }
-                if (localPlayer) drawDotOnMap(localPlayer.distance, localPlayer.color, true);
-            }
-
-            window.goToRoomScreen = function () { profileScreen.classList.add('hidden'); roomScreen.classList.remove('hidden'); };
-            window.goToProfileScreen = function () { roomScreen.classList.add('hidden'); profileScreen.classList.remove('hidden'); };
-
-            window.createRoom = function () {
+            window.createRoom = () => {
                 const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-                let randomCode = "";
-                for (let i = 0; i < 5; i++) {
-                    randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                let rDiff = document.getElementById('room-diff').value;
-                joinServerRoom(randomCode, rDiff);
+                let code = "";
+                for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+
+                let selectedDiff = document.getElementById('room-diff').value;
+                joinServerRoom(code, selectedDiff);
             };
 
-            window.joinRoom = function () {
+            window.joinRoom = () => {
                 let code = document.getElementById('join-code').value.toUpperCase().trim();
-                if (!code) return alert("Por favor, introduza o código da sala!");
-                joinServerRoom(code, 'medio');
+                if (code) joinServerRoom(code, 'medio');
             };
 
             function joinServerRoom(code, diff) {
@@ -560,51 +514,40 @@
                 roomScreen.classList.add('hidden');
             }
 
-            window.startGameHost = function () { socket.emit('startGame'); };
-            window.returnToLobbyHost = function () { socket.emit('returnToLobby'); };
-            window.leaveGame = function () { location.reload(); };
+            window.startGameHost = () => socket.emit('startGame');
+            window.returnToLobbyHost = () => socket.emit('returnToLobby');
+            window.leaveGame = () => location.reload();
 
             socket.on('roomError', (msg) => { alert(msg); roomScreen.classList.remove('hidden'); });
 
-            socket.on('roomJoined', (roomData) => {
-                mapBlueprint = roomData.blueprint;
-                currentDiff = DIFF_SETTINGS[roomData.difficulty];
-                isAmIHost = roomData.isHost;
+            socket.on('roomJoined', (data) => {
+                mapBlueprint = data.blueprint;
+                isAmIHost = data.isHost;
+                currentDiff = DIFF_SETTINGS[data.difficulty];
 
-                document.getElementById('display-room-code').innerText = roomData.roomId;
+                document.getElementById('display-room-code').innerText = data.roomId;
                 lobbyScreen.classList.remove('hidden');
 
-                if (isAmIHost) {
-                    document.getElementById('host-controls').classList.remove('hidden');
-                    document.getElementById('guest-controls').classList.add('hidden');
-                } else {
-                    document.getElementById('host-controls').classList.add('hidden');
-                    document.getElementById('guest-controls').classList.remove('hidden');
-                }
+                document.getElementById('host-controls').classList.toggle('hidden', !isAmIHost);
+                document.getElementById('guest-controls').classList.toggle('hidden', isAmIHost);
 
-                let pName = document.getElementById('player-name').value || "Piloto";
-                localPlayer = new LocalBall(pName, selectedColor);
+                localPlayer = new LocalBall(document.getElementById('player-name').value, selectedColor);
             });
 
             socket.on('lobbyUpdate', (players) => {
-                const listDiv = document.getElementById('lobby-player-list');
-                listDiv.innerHTML = '';
+                const list = document.getElementById('lobby-player-list');
+                list.innerHTML = '';
                 for (let id in players) {
                     let p = players[id];
-                    let role = p.isHost ? " 👑" : "";
-                    listDiv.innerHTML += `
-                        <div class="lobby-player">
-                            <span class="lobby-color" style="background-color: ${p.color}; color: ${p.color}"></span>
-                            ${p.name} ${role}
-                        </div>
-                    `;
+                    list.innerHTML += `<div class="lobby-player"><span class="lobby-color" style="background:${p.color}"></span>${p.name} ${p.isHost ? '👑' : ''}</div>`;
                 }
             });
 
             socket.on('gameStarted', () => {
                 pipes = []; score = 0; frames = 0; pipesCreated = 0; scoreEl.innerText = "0";
                 lobbyScreen.classList.add('hidden');
-                rankBoard.style.display = 'block';
+                rankingScreen.classList.add('hidden');
+                gameHud.style.opacity = 1;
                 isRunning = true;
                 loop();
             });
@@ -612,31 +555,25 @@
             socket.on('returnedToLobby', (data) => {
                 isRunning = false;
                 mapBlueprint = data.blueprint;
-
-                goScreen.classList.add('hidden');
-                spectatorBadge.classList.add('hidden');
-                rankBoard.style.display = 'none';
+                rankingScreen.classList.add('hidden');
                 lobbyScreen.classList.remove('hidden');
+                pipes = []; score = 0;
 
-                pipes = []; score = 0; frames = 0; pipesCreated = 0;
-                scoreEl.innerText = "0"; leaderEl.innerText = "---";
-
-                let pName = document.getElementById('player-name').value || "Piloto";
+                let pName = document.getElementById('player-name').value;
                 localPlayer = new LocalBall(pName, selectedColor);
-
-                for (let id in remotePlayers) {
-                    remotePlayers[id].dead = false;
-                    remotePlayers[id].dist = 0;
-                    remotePlayers[id].y = 300;
-                }
+                for (let id in remotePlayers) { remotePlayers[id].dead = false; remotePlayers[id].dist = 0; remotePlayers[id].y = 300; }
                 updateOnlineCounter();
             });
 
-            socket.on('roundOver', () => {
-                isRunning = false;
-                let winner = (rankingData.length > 0) ? rankingData[0].name : "---";
-                document.getElementById('go-msg').innerText = `Vencedor: ${winner}`;
+            socket.on('updateLeader', (data) => {
+                leaderEl.innerText = data.top.score >= 0 ? data.top.name : "---";
+                rankingData = data.list;
+                if (!rankingScreen.classList.contains('hidden')) {
+                    renderFinalRanking();
+                }
+            });
 
+            socket.on('roundOver', () => {
                 if (isAmIHost) {
                     document.getElementById('btn-return-lobby').classList.remove('hidden');
                     document.getElementById('guest-wait-msg').classList.add('hidden');
@@ -644,131 +581,103 @@
                     document.getElementById('btn-return-lobby').classList.add('hidden');
                     document.getElementById('guest-wait-msg').classList.remove('hidden');
                 }
-                goScreen.classList.remove('hidden');
             });
 
-            socket.on('currentPlayers', (serverPlayers) => {
-                for (let id in serverPlayers) if (id !== socket.id) remotePlayers[id] = serverPlayers[id];
-                updateOnlineCounter();
-            });
+            socket.on('currentPlayers', (list) => { for (let id in list) if (id !== socket.id) remotePlayers[id] = list[id]; updateOnlineCounter(); });
             socket.on('newPlayer', (p) => { remotePlayers[p.id] = p; updateOnlineCounter(); });
-            socket.on('updatePlayer', (data) => { if (remotePlayers[data.id]) { remotePlayers[data.id].y = data.y; remotePlayers[data.id].dist = data.dist; } });
-            socket.on('playerDied', (id) => { if (remotePlayers[id]) { remotePlayers[id].dead = true; updateOnlineCounter(); } });
             socket.on('removePlayer', (id) => { delete remotePlayers[id]; updateOnlineCounter(); });
-
-            socket.on('updateLeader', (data) => {
-                leaderEl.innerText = (data.top.score >= 0) ? `${data.top.name}` : "---";
-                rankingData = data.list;
-                renderRanking();
-            });
+            socket.on('playerDied', (id) => { if (remotePlayers[id]) remotePlayers[id].dead = true; updateOnlineCounter(); });
+            socket.on('updatePlayer', (d) => { if (remotePlayers[d.id]) { remotePlayers[d.id].y = d.y; remotePlayers[d.id].dist = d.dist; } });
 
             function updateOnlineCounter() {
-                let count = 0;
-                if (localPlayer) count++;
-                count += Object.keys(remotePlayers).length;
+                let count = (localPlayer && !localPlayer.dead) ? 1 : 0;
+                for (let id in remotePlayers) if (!remotePlayers[id].dead) count++;
                 aliveEl.innerText = count;
             }
 
-            function renderRanking() {
-                rankList.innerHTML = '';
-                rankingData.slice(0, 5).forEach((p, i) => {
-                    let deadClass = p.dead ? 'rank-dead' : '';
-                    let scoreDisplay = Math.floor(p.dist / 100);
-                    rankList.innerHTML += `
-                        <div class="rank-row ${deadClass}">
-                            <span class="rank-name" style="color:${p.color}">${i + 1}. ${p.name}</span>
-                            <span>${scoreDisplay}</span>
+            function showRankingPopup() {
+                gameHud.style.opacity = 0;
+                document.getElementById('btn-return-lobby').classList.add('hidden');
+                document.getElementById('guest-wait-msg').classList.remove('hidden');
+                document.getElementById('guest-wait-msg').innerText = "Você caiu! Aguardando o fim da rodada...";
+
+                renderFinalRanking();
+                rankingScreen.classList.remove('hidden');
+            }
+
+            function renderFinalRanking() {
+                rankListEl.innerHTML = '';
+                rankingData.forEach((p, i) => {
+                    let isDead = p.dead ? 'dead' : '';
+                    let isWinner = (i === 0 && rankingData.length > 1) ? 'winner' : '';
+                    let points = Math.floor(p.dist / 100);
+
+                    rankListEl.innerHTML += `
+                        <div class="rank-row ${isDead} ${isWinner}">
+                            <span class="rank-pos">#${i + 1}</span>
+                            <span class="rank-name" style="color: ${p.color}">${p.name}</span>
+                            <span class="rank-score">${points}pts</span>
                         </div>
                     `;
                 });
             }
 
-            function updatePipesLogic(cameraDist) {
+            function updatePipes(cameraDist) {
                 if (frames % currentDiff.spawn === 0) {
-                    let randomVal = mapBlueprint[pipesCreated % mapBlueprint.length];
-                    let y = randomVal * (canvas.height - 300) + 100;
-                    pipes.push({ x: canvas.width + cameraDist, y: y, w: 60, gap: currentDiff.gap });
+                    let val = mapBlueprint[pipesCreated % mapBlueprint.length];
+                    let y = val * (canvas.height - 300) + 100;
+                    pipes.push({ x: canvas.width + cameraDist, y: y });
                     pipesCreated++;
                 }
-
                 for (let i = 0; i < pipes.length; i++) {
                     let p = pipes[i];
                     p.x -= currentDiff.speed;
-
-                    let renderOffset = 0;
-                    if (localPlayer && localPlayer.dead) {
-                        renderOffset = localPlayer.distance - cameraDist;
-                    }
-
-                    let drawX = p.x + renderOffset;
-
-                    ctx.shadowBlur = 15; ctx.shadowColor = "#00ffff"; ctx.fillStyle = "rgba(0, 255, 255, 0.2)"; ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2;
-                    ctx.fillRect(drawX, 0, 60, p.y); ctx.strokeRect(drawX, 0, 60, p.y);
-                    let by = p.y + p.gap;
-                    ctx.fillRect(drawX, by, 60, canvas.height - by); ctx.strokeRect(drawX, by, 60, canvas.height - by);
-                    ctx.shadowBlur = 0;
+                    let drawX = p.x - cameraDist;
 
                     if (localPlayer && !localPlayer.dead) {
-                        if (localPlayer.x + 10 > drawX && localPlayer.x - 10 < drawX + 60) {
-                            if (localPlayer.y - 10 < p.y || localPlayer.y + 10 > by) localPlayer.die();
+                        let screenX = (p.x - cameraDist) + 100;
+                        ctx.shadowBlur = 15; ctx.shadowColor = "#00ffff"; ctx.fillStyle = "rgba(0, 255, 255, 0.2)";
+                        ctx.fillRect(screenX, 0, 60, p.y);
+                        ctx.fillRect(screenX, p.y + currentDiff.gap, 60, canvas.height);
+
+                        if (100 + 15 > screenX && 100 - 15 < screenX + 60) {
+                            if (localPlayer.y - 15 < p.y || localPlayer.y + 15 > p.y + currentDiff.gap) localPlayer.die();
+                        }
+                        if (screenX + 60 < 100 && !p.passed) {
+                            score++; scoreEl.innerText = score; p.passed = true;
+                            socket.emit('scoreUpdate', score);
                         }
                     }
-                    if (drawX + 60 < localPlayer.x && !p.passed && !localPlayer.dead) {
-                        score++; scoreEl.innerText = score; p.passed = true;
-                        socket.emit('scoreUpdate', score);
-                    }
-                    if (drawX < -100) { pipes.shift(); i--; }
+                    if (drawX < -2000) { pipes.shift(); i--; }
                 }
             }
-
-            const World = {
-                gridOffset: 0,
-                draw: function (cameraDist) {
-                    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    grad.addColorStop(0, "#050510"); grad.addColorStop(1, "#001a33");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    let visualOffset = -(cameraDist % 50);
-                    ctx.strokeStyle = "rgba(0, 255, 255, 0.1)"; ctx.lineWidth = 1; ctx.beginPath();
-                    for (let i = visualOffset; i < canvas.width; i += 50) { ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); }
-                    for (let i = 0; i < canvas.height; i += 50) { let y = (i + this.gridOffset) % canvas.height; ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
-                    ctx.stroke();
-                }
-            };
 
             function loop() {
                 if (!isRunning) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                let cameraDist = 0;
-                if (localPlayer && !localPlayer.dead) {
-                    cameraDist = localPlayer.distance;
-                } else {
-                    let maxD = 0;
-                    for (let id in remotePlayers) {
-                        if (!remotePlayers[id].dead && remotePlayers[id].dist > maxD) maxD = remotePlayers[id].dist;
-                    }
-                    cameraDist = maxD || (localPlayer ? localPlayer.distance : 0);
-                }
+                let cameraDist = (localPlayer && !localPlayer.dead) ? localPlayer.distance : localPlayer.distance;
 
-                World.draw(cameraDist);
-                updatePipesLogic(cameraDist);
+                let offset = -(cameraDist % 50);
+                ctx.strokeStyle = "rgba(0, 255, 255, 0.1)"; ctx.lineWidth = 1; ctx.beginPath();
+                for (let i = offset; i < canvas.width; i += 50) { ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); }
+                ctx.stroke();
+
+                updatePipes(cameraDist);
 
                 for (let id in remotePlayers) {
                     let rp = remotePlayers[id];
-                    if (rp.dist !== undefined) {
-                        let relativeX = 100 + (rp.dist - cameraDist);
-                        if (relativeX > -50 && relativeX < canvas.width + 50 && !rp.dead) {
-                            drawBall(relativeX, rp.y, 15, rp.color, rp.name, false);
-                        }
+                    if (!rp.dead && rp.dist !== undefined) {
+                        let relX = 100 + (rp.dist - cameraDist);
+                        if (relX > -50 && relX < canvas.width) drawBall(relX, rp.y, 15, rp.color, rp.name, false);
                     }
                 }
 
                 if (localPlayer) {
                     localPlayer.update();
-                    localPlayer.draw(cameraDist);
+                    localPlayer.draw();
                 }
 
-                drawMinimap();
                 frames++; requestAnimationFrame(loop);
             }
 
