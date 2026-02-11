@@ -9,21 +9,6 @@ app.use(express.static('public'));
 
 let players = {};
 
-const PIPE_SPAWN_RATE = 1300;
-
-setInterval(() => {
-    const gap = 140;
-    const positionY = Math.random() * (600 - 300) + 100;
-
-    const pipe = {
-        id: Date.now(),
-        y: positionY,
-        gap: gap
-    };
-
-    io.emit('newPipe', pipe);
-}, PIPE_SPAWN_RATE);
-
 function broadcastLeader() {
     let leader = { name: '---', score: -1 };
 
@@ -39,10 +24,10 @@ function broadcastLeader() {
 io.on('connection', (socket) => {
     console.log('Conectado:', socket.id);
 
+    // Jogador iniciou a própria partida
     socket.on('start', (data) => {
         players[socket.id] = {
             id: socket.id,
-            x: 100,
             y: 300,
             color: data.color || '#00ffff',
             name: data.name || 'Player',
@@ -51,17 +36,15 @@ io.on('connection', (socket) => {
         };
 
         socket.emit('currentPlayers', players);
-
         socket.broadcast.emit('newPlayer', players[socket.id]);
-
         broadcastLeader();
     });
 
+    // Repassa o movimento (fantasma)
     socket.on('move', (data) => {
         if (players[socket.id]) {
             players[socket.id].y = data.y;
-            players[socket.id].velocity = data.v;
-            socket.broadcast.emit('updatePlayer', { id: socket.id, y: data.y, v: data.v });
+            socket.broadcast.emit('updatePlayer', { id: socket.id, y: data.y });
         }
     });
 
@@ -87,7 +70,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Ghost rodando na porta ${PORT}`);
 });

@@ -3,10 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Glide</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Glide - Ghost Race</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap');
 
@@ -18,8 +16,8 @@
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
             touch-action: none;
-            -webkit-user-select: none;
             user-select: none;
+            -webkit-user-select: none;
         }
 
         canvas {
@@ -42,7 +40,7 @@
             z-index: 10;
         }
 
-        /* HUD - Barra de Status */
+        /* HUD */
         .hud-bar {
             margin-top: 10px;
             display: flex;
@@ -73,16 +71,9 @@
             box-shadow: 0 0 10px #ffd700;
         }
 
-        /* Ícones para Mobile */
         .icon {
             font-size: 16px;
         }
-
-        .label-text {
-            display: inline;
-        }
-
-        /* Texto aparece no PC */
 
         /* TELAS */
         .screen {
@@ -92,7 +83,6 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            -webkit-backdrop-filter: blur(5px);
             backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
@@ -202,11 +192,7 @@
             transform: scale(0.95);
         }
 
-        .play-btn-restart {
-            width: 200px;
-        }
-
-        /* --- AJUSTES MOBILE EXTREMOS --- */
+        /* MOBILE */
         @media (max-width: 600px) {
             .hud-bar {
                 width: 98%;
@@ -221,12 +207,6 @@
                 justify-content: center;
             }
 
-            .label-text {
-                display: none;
-            }
-
-            /* Esconde texto, mostra só ícone e valor */
-
             h1 {
                 font-size: 32px;
             }
@@ -235,8 +215,6 @@
                 width: 45px;
                 height: 45px;
             }
-
-            /* Botões maiores para dedo */
         }
     </style>
 </head>
@@ -252,23 +230,22 @@
 
         <div id="start-screen" class="screen">
             <h1>NEON GLIDE</h1>
-            <p>Toque para voar</p>
+            <p>Corrida de Fantasmas</p>
 
             <div class="custom-area">
                 <label>PILOTO</label>
-                <input type="text" id="player-name" value="Player 1" maxlength="10" placeholder="Digite seu nome">
+                <input type="text" id="player-name" value="Player 1" maxlength="10">
 
                 <label>COR</label>
                 <div class="colors" id="color-options"></div>
-
-                <button type="button" class="play-btn" onclick="startGame()">DECOLAR</button>
+                <button class="play-btn" onclick="startGame()">DECOLAR</button>
             </div>
         </div>
 
         <div id="game-over-screen" class="screen hidden">
-            <h1 class="game-over">BATIDO!</h1>
-            <p id="go-msg" class="game-over-msg">Score: 0</p>
-            <button type="button" class="play-btn play-btn-restart" onclick="resetGame()">REINICIAR</button>
+            <h1 style="color: #ff3333">BATIDO!</h1>
+            <p id="go-msg" style="color:#fff; font-size:18px;">Score: 0</p>
+            <button class="play-btn" style="width: 200px" onclick="resetGame()">REINICIAR</button>
         </div>
     </div>
 
@@ -278,9 +255,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializa socket
             const socket = io();
-
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             const aliveEl = document.getElementById('alive-txt');
@@ -290,57 +265,47 @@
             const goScreen = document.getElementById('game-over-screen');
 
             let isRunning = false;
+            let frames = 0; // O SEGREDO: Variável de tempo local voltou!
             let score = 0;
 
-            // Dificuldade
+            // Dificuldade Hardcore
             const GRAVITY = 0.28;
             const JUMP = 4.2;
             const PIPE_SPEED = 3.5;
+            const PIPE_GAP = 140;
+            const SPAWN_RATE = 80; // A cada 80 frames um cano novo nasce
 
-            // Cores
             const neonColors = [
                 { hex: '#00ffff' }, { hex: '#ff00ff' }, { hex: '#00ff00' },
                 { hex: '#ffff00' }, { hex: '#ff3300' }
             ];
             let selectedColor = neonColors[0].hex;
 
-            // GERA OS BOTÕES DE COR (Com verificação de segurança)
             const colorContainer = document.getElementById('color-options');
             if (colorContainer) {
-                colorContainer.innerHTML = ''; // Limpa antes de criar
+                colorContainer.innerHTML = '';
                 neonColors.forEach((c, i) => {
                     let btn = document.createElement('div');
                     btn.className = `c-btn ${i === 0 ? 'selected' : ''}`;
                     btn.style.backgroundColor = c.hex;
-                    btn.style.borderColor = "#333"; // Borda visível
-                    // Adiciona sombra colorida para ficar neon
+                    btn.style.borderColor = "#333";
                     btn.style.boxShadow = `0 0 5px ${c.hex}`;
 
                     btn.onclick = () => {
                         document.querySelectorAll('.c-btn').forEach(b => {
-                            b.classList.remove('selected');
-                            b.style.borderColor = "#333";
-                            b.style.transform = "scale(1)";
+                            b.classList.remove('selected'); b.style.borderColor = "#333"; b.style.transform = "scale(1)";
                         });
-                        btn.classList.add('selected');
-                        btn.style.borderColor = "#fff";
-                        btn.style.transform = "scale(1.2)";
+                        btn.classList.add('selected'); btn.style.borderColor = "#fff"; btn.style.transform = "scale(1.2)";
                         selectedColor = c.hex;
                     };
                     colorContainer.appendChild(btn);
                 });
-            } else {
-                console.error("ERRO: Container de cores não encontrado!");
             }
 
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize); resize();
 
-            // --- LÓGICA DE JOGO ---
+            // --- JOGADOR ---
             let localPlayer = null;
             let remotePlayers = {};
             let pipes = [];
@@ -355,7 +320,8 @@
                     if (this.dead) return;
                     this.velocity += GRAVITY; this.y += this.velocity;
                     if (this.y + this.radius > canvas.height || this.y - this.radius < 0) this.die();
-                    socket.emit('move', { y: this.y, v: this.velocity });
+                    // Só mandamos o Y para o servidor (para os fantasmas)
+                    socket.emit('move', { y: this.y });
                 }
                 draw() {
                     if (this.dead) return;
@@ -366,14 +332,14 @@
                     this.dead = true;
                     socket.emit('died');
                     updateOnlineCounter();
-                    endGame(false);
+                    endGame();
                 }
             }
 
             function drawBall(x, y, radius, color, name, isLocal) {
                 ctx.save(); ctx.translate(x, y);
                 ctx.shadowBlur = isLocal ? 20 : 10; ctx.shadowColor = color; ctx.fillStyle = color;
-                if (!isLocal) ctx.globalAlpha = 0.6;
+                if (!isLocal) ctx.globalAlpha = 0.5; // Fantasmas ficam 50% transparentes
                 ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
                 ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
                 ctx.beginPath(); ctx.arc(-5, -5, 5, 0, Math.PI * 2); ctx.fill();
@@ -383,7 +349,7 @@
                 ctx.textAlign = "center"; ctx.fillText(name, x, y - 25);
             }
 
-            // --- SOCKETS ---
+            // --- SOCKETS (REDE) ---
             socket.on('currentPlayers', (serverPlayers) => {
                 for (let id in serverPlayers) if (id !== socket.id) remotePlayers[id] = serverPlayers[id];
                 updateOnlineCounter();
@@ -395,7 +361,6 @@
             socket.on('updateLeader', (leaderData) => {
                 leaderEl.innerText = (leaderData.score >= 0) ? `${leaderData.name} (${leaderData.score})` : "---";
             });
-            socket.on('newPipe', (pipe) => { pipe.x = canvas.width; pipe.passed = false; pipes.push(pipe); });
 
             function updateOnlineCounter() {
                 let count = 0;
@@ -404,7 +369,14 @@
                 aliveEl.innerText = count;
             }
 
+            // --- LÓGICA DO JOGO LOCAL ---
             function updatePipesLogic() {
+                // GERADOR DE CANOS LOCAL (Cada um tem o seu mundo!)
+                if (frames % SPAWN_RATE === 0) {
+                    let y = Math.random() * (canvas.height - 300) + 100;
+                    pipes.push({ x: canvas.width, y: y, w: 60, gap: PIPE_GAP, passed: false });
+                }
+
                 for (let i = 0; i < pipes.length; i++) {
                     let p = pipes[i]; p.x -= PIPE_SPEED;
 
@@ -422,7 +394,7 @@
                     }
                     if (p.x + 60 < localPlayer.x && !p.passed && !localPlayer.dead) {
                         score++; scoreEl.innerText = score; p.passed = true;
-                        socket.emit('scoreUpdate', score);
+                        socket.emit('scoreUpdate', score); // Avisa a pontuação pro Líder
                     }
                     if (p.x + 60 < -100) { pipes.shift(); i--; }
                 }
@@ -448,32 +420,46 @@
             function loop() {
                 if (!isRunning) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                World.draw(); updatePipesLogic();
+
+                World.draw();
+                updatePipesLogic();
+
+                // Desenha os fantasmas dos outros
                 for (let id in remotePlayers) {
                     let rp = remotePlayers[id];
                     if (!rp.dead) drawBall(100, rp.y, 15, rp.color, rp.name, false);
                 }
+
                 if (localPlayer) { localPlayer.update(); localPlayer.draw(); }
+
+                frames++; // Incrementa os frames para nascer os canos certinho
                 requestAnimationFrame(loop);
             }
 
-            // Funções globais para os botões HTML acessarem
+            // --- CONTROLES DA TELA ---
             window.startGame = function () {
                 let name = document.getElementById('player-name').value || "Player";
-                pipes = []; score = 0; scoreEl.innerText = "0";
+
+                // RESETA TUDO (Garante que começa sempre do começo!)
+                pipes = [];
+                score = 0;
+                frames = 0;
+                scoreEl.innerText = "0";
+
                 localPlayer = new LocalBall(name, selectedColor);
                 socket.emit('start', { name: name, color: selectedColor });
+
                 startScreen.classList.add('hidden');
                 goScreen.classList.add('hidden');
-                isRunning = true; loop();
+                isRunning = true;
+                loop();
             };
 
             window.resetGame = function () { location.reload(); };
 
-            function endGame(win) {
+            function endGame() {
                 isRunning = false;
-                let msg = document.getElementById('go-msg');
-                msg.innerText = `Score Final: ${score}`;
+                document.getElementById('go-msg').innerText = `Score Final: ${score}`;
                 goScreen.classList.remove('hidden');
             }
 
