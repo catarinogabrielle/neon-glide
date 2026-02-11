@@ -9,16 +9,41 @@ app.use(express.static('public'));
 
 let rooms = {};
 
-function broadcastLeader(roomId) {
+function checkRoundOver(roomId) {
     if (!rooms[roomId]) return;
-    let leader = { name: '---', score: -1 };
 
+    let anyoneAlive = false;
     for (let id in rooms[roomId].players) {
-        if (rooms[roomId].players[id].score > leader.score) {
-            leader = { name: rooms[roomId].players[id].name, score: rooms[roomId].players[id].score };
+        if (!rooms[roomId].players[id].dead) {
+            anyoneAlive = true;
+            break;
         }
     }
-    io.to(roomId).emit('updateLeader', leader);
+
+    if (!anyoneAlive) {
+        io.to(roomId).emit('roundOver');
+    }
+}
+
+function broadcastLeader(roomId) {
+    if (!rooms[roomId]) return;
+
+    let ranking = [];
+    for (let id in rooms[roomId].players) {
+        let p = rooms[roomId].players[id];
+        ranking.push({
+            name: p.name,
+            score: p.score,
+            dist: p.dist,
+            dead: p.dead,
+            color: p.color
+        });
+    }
+    ranking.sort((a, b) => b.dist - a.dist);
+
+    let leader = ranking[0] || { name: '---', score: 0 };
+
+    io.to(roomId).emit('updateLeader', { top: leader, list: ranking });
 }
 
 function updateLobby(roomId) {
@@ -31,7 +56,7 @@ io.on('connection', (socket) => {
     console.log('Piloto conectado:', socket.id);
 
     socket.on('joinOrCreateRoom', (data) => {
-        const roomId = data.roomId.toUpperCase();
+        const roomId = String(data.roomId).trim().toUpperCase();
         let isHost = false;
 
         if (!rooms[roomId]) {
@@ -40,14 +65,14 @@ io.on('connection', (socket) => {
                 hostId: socket.id,
                 state: 'waiting',
                 difficulty: data.difficulty || 'medio',
-                blueprint: Array.from({ length: 1000 }, () => Math.random()),
+                blueprint: Array.from({ length: 2000 }, () => Math.random()),
                 players: {}
             };
             isHost = true;
-            console.log(`Sala [${roomId}] CRIADA no nível ${data.difficulty}`);
+            console.log(`Sala [${roomId}] CRIADA.`);
         } else {
             if (rooms[roomId].state === 'playing') {
-                socket.emit('roomError', 'O jogo já começou nesta sala! Aguarde no menu.');
+                socket.emit('roomError', 'O jogo já começou!');
                 return;
             }
         }
@@ -71,6 +96,10 @@ io.on('connection', (socket) => {
             isHost: isHost
         });
 
+        socket.emit('currentPlayers', rooms[roomId].players);
+
+        socket.broadcast.to(roomId).emit('newPlayer', rooms[roomId].players[socket.id]);
+
         updateLobby(roomId);
     });
 
@@ -86,8 +115,7 @@ io.on('connection', (socket) => {
         let roomId = socket.roomId;
         if (roomId && rooms[roomId] && rooms[roomId].hostId === socket.id) {
             rooms[roomId].state = 'waiting';
-
-            rooms[roomId].blueprint = Array.from({ length: 1000 }, () => Math.random());
+            rooms[roomId].blueprint = Array.from({ length: 2000 }, () => Math.random());
 
             for (let id in rooms[roomId].players) {
                 rooms[roomId].players[id].score = 0;
@@ -96,10 +124,7 @@ io.on('connection', (socket) => {
                 rooms[roomId].players[id].y = 300;
             }
 
-            io.to(roomId).emit('returnedToLobby', {
-                blueprint: rooms[roomId].blueprint
-            });
-
+            io.to(roomId).emit('returnedToLobby', { blueprint: rooms[roomId].blueprint });
             updateLobby(roomId);
             broadcastLeader(roomId);
         }
@@ -127,6 +152,7 @@ io.on('connection', (socket) => {
         if (roomId && rooms[roomId] && rooms[roomId].players[socket.id]) {
             rooms[roomId].players[socket.id].dead = true;
             io.to(roomId).emit('playerDied', socket.id);
+            checkRoundOver(roomId);
         }
     });
 
@@ -137,10 +163,10 @@ io.on('connection', (socket) => {
             io.to(roomId).emit('removePlayer', socket.id);
             updateLobby(roomId);
             broadcastLeader(roomId);
+            checkRoundOver(roomId);
 
             if (Object.keys(rooms[roomId].players).length === 0) {
                 delete rooms[roomId];
-                console.log(`Sala [${roomId}] foi fechada.`);
             }
         }
     });
@@ -148,5 +174,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor de Salas rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Final rodando na porta ${PORT}`);
 });
