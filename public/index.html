@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Glide</title>
-    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap');
@@ -13,7 +12,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: #050505;
+            background: #000;
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
             touch-action: none;
@@ -101,7 +100,7 @@
             backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
-            padding-top: 25%;
+            padding-top: 15%;
             align-items: center;
             pointer-events: auto;
             transition: opacity 0.3s;
@@ -306,6 +305,20 @@
             color: #0ff;
             font-weight: bold;
         }
+
+        #countdown-number {
+            font-size: 120px;
+            color: #0ff;
+            text-shadow: 0 0 30px #0ff;
+            margin: 0;
+        }
+
+        #countdown-label {
+            font-size: 20px;
+            color: #fff;
+            letter-spacing: 5px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -371,6 +384,11 @@
                 </div>
             </div>
 
+            <div id="countdown-screen" class="screen hidden">
+                <h1 id="countdown-number">8</h1>
+                <p id="countdown-label">PREPAREM-SE</p>
+            </div>
+
             <div id="ranking-screen" class="screen hidden">
                 <h1>CLASSIFICAÇÃO</h1>
                 <div class="custom-area rank-popup-container">
@@ -389,8 +407,8 @@
         </div>
 
         <canvas id="canvas"></canvas>
-
     </div>
+
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
@@ -406,9 +424,11 @@
             const profileScreen = document.getElementById('profile-screen');
             const roomScreen = document.getElementById('room-screen');
             const lobbyScreen = document.getElementById('lobby-screen');
+            const countdownScreen = document.getElementById('countdown-screen');
             const rankingScreen = document.getElementById('ranking-screen');
             const gameHud = document.getElementById('game-hud');
             const rankListEl = document.getElementById('final-ranking-list');
+            const countdownNumEl = document.getElementById('countdown-number');
 
             let isRunning = false;
             let isAmIHost = false;
@@ -544,12 +564,27 @@
             });
 
             socket.on('gameStarted', () => {
-                pipes = []; score = 0; frames = 0; pipesCreated = 0; scoreEl.innerText = "0";
                 lobbyScreen.classList.add('hidden');
                 rankingScreen.classList.add('hidden');
-                gameHud.style.opacity = 1;
-                isRunning = true;
-                loop();
+                countdownScreen.classList.remove('hidden');
+
+                let count = 8;
+                countdownNumEl.innerText = count;
+
+                const timer = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownNumEl.innerText = count;
+                    } else {
+                        clearInterval(timer);
+                        countdownScreen.classList.add('hidden');
+
+                        pipes = []; score = 0; frames = 0; pipesCreated = 0; scoreEl.innerText = "0";
+                        gameHud.style.opacity = 1;
+                        isRunning = true;
+                        loop();
+                    }
+                }, 1000);
             });
 
             socket.on('returnedToLobby', (data) => {
