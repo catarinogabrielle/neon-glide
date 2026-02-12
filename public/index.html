@@ -299,6 +299,7 @@
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
+            margin-left: 5px;
             text-overflow: ellipsis;
         }
 
@@ -650,7 +651,7 @@
 
                     rankListEl.innerHTML += `
                         <div class="rank-row ${isDead} ${isWinner}">
-                            <span class="rank-pos"># ${i + 1}</span>
+                            <span class="rank-pos">#${i + 1}</span>
                             <span class="rank-name" style="color: ${p.color}">${p.name}</span>
                             <span class="rank-score">${points}pts</span>
                         </div>
